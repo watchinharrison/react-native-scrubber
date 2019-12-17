@@ -1,6 +1,6 @@
 {
-  "name": "@watchinharrison/react-native-scrubber",
-  "version": "2.0.0",
+  "name": "watchinharrison-react-native-scrubber",
+  "version": "2.0.3",
   "description": "A Scrubber component for handling audio/video within React Native",
   "main": "index.js",
   "scripts": {
