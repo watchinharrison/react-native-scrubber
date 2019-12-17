@@ -57,7 +57,7 @@ formatValue = value => {
 export default class extends Component {
   constructor(props) {
     super(props);
-    
+
     this.scaleFactor = new Animated.Value(0);
 
     this.state = {
@@ -112,12 +112,12 @@ export default class extends Component {
 
   _onHandlerStateChange = event => {
 
-    if (event.nativeEvent.state === State.BEGAN) {      
+    if (event.nativeEvent.state === State.BEGAN) {
       const { totalDuration, value } = this.props;
       const currentPercent = totalDuration !== 0 ? Math.min(totalDuration, value) / totalDuration : 0
       const initialX = currentPercent * this.state.dimensionWidth
       const boundedX = Math.min(Math.max(initialX, 0), this.state.dimensionWidth - TrackSliderSize);
-      
+
       this.panResonderMoved = false;
 
       this._lastOffset.x = boundedX
@@ -145,7 +145,7 @@ export default class extends Component {
       if(this.panResonderMoved) {
         this.onSlidingComplete(scrubbingValue)
       }
-      
+
       this.setState({ scrubbing: false, scrubRate: 1 }, this.scaleDown);
 
     }
@@ -159,26 +159,20 @@ export default class extends Component {
       return PLACEHOLDER_DISPLAY_VALUE
     }
 
-    
-    return scrubbing 
+
+    return scrubbing
       ? formatValue(startingNumberValue)
       : formatValue(value)
   }
 
   formattedEndingNumber = () => {
-    const { value, totalDuration } = this.props;
-    const { scrubbing, endingNumberValue } = this.state;
-    const cappedValue = Math.min(totalDuration, value)
-    const remainingValue = totalDuration - cappedValue
+    const { totalDuration } = this.props;
 
     if(!totalDuration) {
       return PLACEHOLDER_DISPLAY_VALUE
     }
-    const scrubbingValue = typeof endingNumberValue === 'number' ? endingNumberValue : remainingValue
 
-    return `-${scrubbing 
-      ? formatValue(scrubbingValue)
-      : formatValue(remainingValue)}`
+    return formatValue(totalDuration);
   }
 
   onSlidingComplete = (scrubbingValue) => {
@@ -208,17 +202,17 @@ export default class extends Component {
       }
       return
     }
-    
+
     if(Math.abs(value.y) > ScrubbingRates.half.threshold) {
       if(scrubRate !== ScrubbingRates.half.rate) {
         this.setState({ scrubRate: ScrubbingRates.half.rate })
       }
       return
     }
-    
+
     if(Math.abs(value.y) < ScrubbingRates.half.threshold) {
       if(scrubRate !== 1) {
-        this.setState({ scrubRate: 1 })  
+        this.setState({ scrubRate: 1 })
       }
       return
     }
@@ -227,7 +221,7 @@ export default class extends Component {
   initiateAnimator = () => {
     this._translateX.addListener(({ value }) => {
       const boundedValue = Math.min(Math.max(value, 0), this.state.dimensionWidth);
-      
+
       this.setState({
         startingNumberValue: (boundedValue / this.state.dimensionWidth) * this.props.totalDuration,
         endingNumberValue: (1 - (boundedValue / this.state.dimensionWidth)) * this.props.totalDuration
@@ -247,40 +241,40 @@ export default class extends Component {
       bufferedTrackColor = DefaultColors.bufferedTrackColor,
       displayedValueStyle = { color: DefaultColors.valueColor },
     } = this.props;
-    
+
     const {
       scrubbing,
       dimensionWidth,
     } = this.state;
-    
+
     // We don't want any value exceeding the totalDuration
     const cappedValue = Math.min(totalDuration, value)
     const cappedBufferedValue = Math.min(totalDuration, bufferedValue)
-    
+
     const progressPercent = totalDuration !== 0 ? cappedValue / totalDuration : 0;
     const displayPercent = progressPercent * (dimensionWidth);
     const progressWidth = progressPercent * 100
     const bufferedProgressPercent = totalDuration !== 0 ? cappedBufferedValue / totalDuration : 0;
     const bufferedProgressWidth = bufferedProgressPercent * 100
-    
-    const scrubberColor = 
+
+    const scrubberColor =
       scrubbing
         ? { backgroundColor: scrubbedColor }
         : { backgroundColor: trackColor }
 
-    const progressTrackStyle = 
+    const progressTrackStyle =
       scrubbing
         ? { backgroundColor: scrubbedColor }
         : { backgroundColor: trackColor }
 
-    const startingValueStyle = 
+    const startingValueStyle =
       scrubbing
         ? [displayedValueStyle, { color: scrubbedColor }]
         : displayedValueStyle
-    
+
     const trackBackgroundStyle = { backgroundColor: trackBackgroundColor }
     const bufferedTrackBackgroundStyle = { backgroundColor: bufferedTrackColor }
-  
+
     let boundX = progressPercent
 
     if(dimensionWidth) {
@@ -297,12 +291,12 @@ export default class extends Component {
     })
     const scaleStyle = { scale: scaleValue };
 
-    
+
     return (
       <View style={styles.root}>
         <View style={styles.trackContainer} onLayout={this.onLayoutContainer}>
-          <View style={[styles.backgroundTrack, trackBackgroundStyle]} />           
-          <View 
+          <View style={[styles.backgroundTrack, trackBackgroundStyle]} />
+          <View
             key='bufferedTrack'
             style={[
               styles.bufferedProgressTrack,
@@ -335,21 +329,20 @@ export default class extends Component {
               ]}
               hitSlop={{top: 20, bottom: 20, left: 50, right: 50}}
             >
-              <Animated.View 
+              <Animated.View
                 key='progressTrack'
                 style={[
                   styles.trackSlider,
                   { ...scrubberColor },
                   { transform: [scaleStyle] },
-                ]} 
+                ]}
               />
             </Animated.View>
           </PanGestureHandler>
         </View>
 
         <View style={styles.valuesContainer} >
-          <Text style={startingValueStyle}>{this.formattedStartingNumber()}</Text>
-          <Text style={displayedValueStyle}>{this.formattedEndingNumber()}</Text>
+          <Text style={startingValueStyle}>{this.formattedStartingNumber()} / {this.formattedEndingNumber()}</Text>
         </View>
       </View>
     )
@@ -359,6 +352,9 @@ export default class extends Component {
 const styles = StyleSheet.create({
   root: {
     width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   valuesContainer: {
     flexDirection: 'row',
