@@ -1,6 +1,6 @@
 {
   "name": "@theladbiblegroup/react-native-scrubber",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A Scrubber component for handling audio/video within React Native",
   "main": "index.js",
   "scripts": {

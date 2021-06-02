@@ -125,6 +125,7 @@ export default class extends Component {
       this._lastOffset.x = boundedX
 
       this.setState({ scrubbing: true }, this.scaleUp);
+      this.onSlidingStart();
     } else if (event.nativeEvent.state === State.ACTIVE) {
       this.panResonderMoved = true;
       this._lastOffset.x += event.nativeEvent.translationX;
@@ -178,6 +179,18 @@ export default class extends Component {
     return formatValue(totalDuration);
   }
 
+  onSlidingStart = () => {
+    if (typeof this.props.onSlide === 'function') {
+      this.props.onSlidingStart();
+    }
+  }
+
+  onSlide = (scrubbingValue) => {
+    if (typeof this.props.onSlide === 'function') {
+      this.props.onSlide(scrubbingValue);
+    }
+  }
+
   onSlidingComplete = (scrubbingValue) => {
     this.props.onSlidingComplete(scrubbingValue);
   }
@@ -225,13 +238,25 @@ export default class extends Component {
     this._translateX.addListener(({ value }) => {
       const boundedValue = Math.min(Math.max(value, 0), this.state.dimensionWidth);
 
+      const startingNumberValue = (boundedValue / this.state.dimensionWidth) * this.props.totalDuration;
+
       this.setState({
-        startingNumberValue: (boundedValue / this.state.dimensionWidth) * this.props.totalDuration,
+        startingNumberValue,
         endingNumberValue: (1 - (boundedValue / this.state.dimensionWidth)) * this.props.totalDuration
-      })
+      });
+
+      this.onSlide(startingNumberValue);
       return;
     });
-  }
+  };
+
+  onTap = ({ nativeEvent }) => {
+    if (nativeEvent.state === State.END && this.props.tapNavigation) {
+      const { dimensionWidth } = this.state;
+      const { totalDuration } = this.props;
+      this.onSlidingComplete((nativeEvent.x / dimensionWidth) * totalDuration);
+    }
+  };
 
   render() {
     const {
@@ -299,7 +324,13 @@ export default class extends Component {
       <View style={styles.root}>
         <View style={{ flex: 1 }}>
           <View style={styles.trackContainer} onLayout={this.onLayoutContainer}>
-            <View style={[styles.backgroundTrack, trackBackgroundStyle]} />
+            <TapGestureHandler
+              onHandlerStateChange={this.onTap}
+              maxDurationMs={2000}
+              hitSlop={{ top: 20, bottom: 20, left: 0, right: 0 }}
+            >
+              <View style={[styles.backgroundTrack, trackBackgroundStyle]} />
+            </TapGestureHandler>
             <View
               key='bufferedTrack'
               style={[
