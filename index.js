@@ -347,10 +347,8 @@ export default class extends Component {
               hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
             >
               <Animated.View
-                key='backgroundTrack'
                 style={[
-                  styles.progressTrack,
-                  { ...progressTrackStyle },
+                  styles.trackSliderWrapper,
                   !scrubbing
                     ? { left: displayPercent - TrackSliderSize / 2 }
                     : { transform: [{ translateX: boundX }] },
