@@ -7,7 +7,7 @@ A video/audio scrubber for react native.
 - [x] Animate scrubber
 - [x] Handle buffered value
 - [x] Implement scrubbing
-- [ ] Scrubbing callbacks
+- [x] Scrubbing callbacks
 - [ ] Custom scrubbing thresholds and rates
 
 
@@ -16,10 +16,15 @@ A video/audio scrubber for react native.
 ```
 npm install react-native-scrubber 
 or 
-yarn add react-native-scrubber`
+yarn add react-native-scrubber
 
 import Scrubber from 'react-native-scrubber'
 ``` 
+
+If you are using Expo, you are done.
+
+If you don't use Expo, install and link [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler).
+
 
 ### Props
 
@@ -28,12 +33,15 @@ Name | Type | Description
 `value` | Number | The current value of the video/audio.
 `bufferedValue` | Number | The current buffered value of the video/audio.
 `totalDuration` | Number | The total duration of the video/audio (Needed to calculated animations within the scrubber). **Note** If you supply a totalDuration of 0 the starting and ending number will display both as `--:--` since we require the totalDuration to display those numbers. 
-`onSlidingComplete` | Function | Callback that is called when the user releases the slider, regardless if the value has changed.
+`onSlidingStart` | Function | Optional callback that is called when the user starts scrubbing.
+`onSlide` | Function | Optional callback that is called while the user is scrubbing. The callback takes the current scrubbing position in seconds as its first argument.
+`onSlidingComplete` | Function | Callback that is called when the user releases the slider, regardless if the value has changed. The callback takes the current scrubbing position in seconds as its first argument.
 `trackBackgroundColor` | String | Hex color representing the color of the background (Unfilled) track
 `trackColor` | String | Hex color representing the color of the foregroud (Filled) track.
 `bufferedTrackColor` | String | Hex color representing the color of the buffered track which sits inbetween the background track and the progress track.
 `scrubbedColor` | String | Hex color represending the color of the foregroud (Filled) track and the dot when the scrubber is active. Also changes the color of the starting number.
 `displayedValueStyle` | Object | This stlye is applied to both the displayed values
+`displayValues` | Boolean | Defaults to `true`, if set false will hide the numbers under the scrub bar.
 
 ## Example
 
