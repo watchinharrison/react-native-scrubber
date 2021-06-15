@@ -161,22 +161,13 @@ export default class extends Component {
   };
 
   formattedEndingNumber = () => {
-    const { value, totalDuration } = this.props;
-    const { scrubbing, endingNumberValue } = this.state;
-    const cappedValue = Math.min(totalDuration, value);
-    const remainingValue = totalDuration - cappedValue;
+    const { totalDuration } = this.props;
 
     if (!totalDuration) {
       return PLACEHOLDER_DISPLAY_VALUE;
     }
-    const scrubbingValue =
-      typeof endingNumberValue === "number"
-        ? endingNumberValue
-        : remainingValue;
 
-    return `-${
-      scrubbing ? formatValue(scrubbingValue) : formatValue(remainingValue)
-    }`;
+    return formatValue(totalDuration);
   };
 
   onSlidingComplete = (scrubbingValue) => {
@@ -184,7 +175,7 @@ export default class extends Component {
   };
 
   onSlidingStart = () => {
-    if (typeof this.props.onSlide === 'function') {
+    if (typeof this.props.onSlidingStart === 'function') {
       this.props.onSlidingStart();
     }
   }
@@ -271,7 +262,7 @@ export default class extends Component {
       trackColor = DefaultColors.trackColor,
       scrubbedColor = DefaultColors.scrubbedColor,
       bufferedTrackColor = DefaultColors.bufferedTrackColor,
-      displayedValueStyle = { color: DefaultColors.valueColor },
+      displayedValueStyle = { color: DefaultColors.valueColor, fontVariant: ['tabular-nums'] },
       displayValues = true,
     } = this.props;
 
@@ -324,68 +315,66 @@ export default class extends Component {
 
     return (
       <View style={styles.root}>
-        <View style={styles.trackContainer} onLayout={this.onLayoutContainer}>
-          <TapGestureHandler
-            onHandlerStateChange={this.onTap}
-            maxDurationMs={2000}
-            hitSlop={{ top: 20, bottom: 20, left: 0, right: 0 }}
-          >
-            <View style={[styles.backgroundTrack, trackBackgroundStyle]} />
-          </TapGestureHandler>
-          <View
-            key="bufferedTrack"
-            style={[
-              styles.bufferedProgressTrack,
-              { ...bufferedTrackBackgroundStyle },
-              { width: `${bufferedProgressWidth}%` },
-            ]}
-          />
-          <Animated.View
-            key="backgroundTrack"
-            style={[
-              styles.progressTrack,
-              { ...progressTrackStyle },
-              !scrubbing ? { width: `${progressWidth}%` } : { width: boundX },
-            ]}
-          />
-          <PanGestureHandler
-            onGestureEvent={this._onGestureEvent}
-            onHandlerStateChange={this._onHandlerStateChange}
-            minDist={0}
-            hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
-          >
+        <View style={{ flex: 1 }}>
+          <View style={styles.trackContainer} onLayout={this.onLayoutContainer}>
+            <TapGestureHandler
+              onHandlerStateChange={this.onTap}
+              maxDurationMs={2000}
+              hitSlop={{ top: 20, bottom: 20, left: 0, right: 0 }}
+            >
+              <View style={[styles.backgroundTrack, trackBackgroundStyle]} />
+            </TapGestureHandler>
+            <View
+              key="bufferedTrack"
+              style={[
+                styles.bufferedProgressTrack,
+                { ...bufferedTrackBackgroundStyle },
+                { width: `${bufferedProgressWidth}%` },
+              ]}
+            />
             <Animated.View
-              key='backgroundTrack'
+              key="backgroundTrack"
               style={[
                 styles.progressTrack,
                 { ...progressTrackStyle },
-                !scrubbing
-                  ? { left: displayPercent - TrackSliderSize / 2 }
-                  : { transform: [{ translateX: boundX }] },
+                !scrubbing ? { width: `${progressWidth}%` } : { width: boundX },
               ]}
+            />
+            <PanGestureHandler
+              onGestureEvent={this._onGestureEvent}
+              onHandlerStateChange={this._onHandlerStateChange}
+              minDist={0}
               hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
             >
               <Animated.View
-                key="progressTrack"
+                key='backgroundTrack'
                 style={[
-                  styles.trackSlider,
-                  { ...scrubberColor },
-                  { transform: [scaleStyle] },
+                  styles.progressTrack,
+                  { ...progressTrackStyle },
+                  !scrubbing
+                    ? { left: displayPercent - TrackSliderSize / 2 }
+                    : { transform: [{ translateX: boundX }] },
                 ]}
-              />
-            </Animated.View>
-          </PanGestureHandler>
-        </View>
-        {displayValues ? (
-          <View style={styles.valuesContainer}>
-            <Text style={startingValueStyle}>
-              {this.formattedStartingNumber()}
-            </Text>
-            <Text style={displayedValueStyle}>
-              {this.formattedEndingNumber()}
-            </Text>
+                hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }}
+              >
+                <Animated.View
+                  key="progressTrack"
+                  style={[
+                    styles.trackSlider,
+                    { ...scrubberColor },
+                    { transform: [scaleStyle] },
+                  ]}
+                />
+              </Animated.View>
+            </PanGestureHandler>
           </View>
-        ) : null}
+          {displayValues ? (
+            <View style={styles.valuesContainer}>
+              <Text style={startingValueStyle}>{this.formattedStartingNumber()}</Text>
+              <Text style={displayedValueStyle}> / {this.formattedEndingNumber()}</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
     );
   }
